@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyTracker - Propuestas de Diseño</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .proposal {
+            max-width: 400px;
+            margin: 0 auto 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .proposal-title {
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        /* PROPUESTA 1: Minimalista Clásico */
+        .prop1-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .prop1-header h1 {
+            color: #059669;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .prop1-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .prop1-summary {
+            padding: 20px;
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            margin: 16px;
+            border-radius: 8px;
+        }
+        
+        .prop1-summary-total {
+            font-size: 32px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 8px;
+        }
+        
+        .prop1-form {
+            padding: 20px;
+        }
+        
+        .prop1-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .prop1-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .prop1-btn {
+            width: 100%;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .prop1-btn:hover {
+            background: #059669;
+        }
+        
+        .prop1-expense {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prop1-expense-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #059669;
+        }
+        
+        .prop1-expense-details {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        /* PROPUESTA 2: Cards Flotantes */
+        .prop2-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 32px 20px;
+            color: white;
+        }
+        
+        .prop2-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .prop2-card {
+            margin: -20px 20px 20px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .prop2-card-total {
+            font-size: 36px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 16px;
+        }
+        
+        .prop2-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .prop2-expense-card {
+            background: white;
+            padding: 16px;
+            margin: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 3px solid #10b981;
+        }
+        
+        /* PROPUESTA 3: Ultra Minimalista */
+        .prop3-header {
+            padding: 24px 20px;
+            background: white;
+            text-align: center;
+            border-bottom: 2px solid #10b981;
+        }
+        
+        .prop3-header h1 {
+            color: #059669;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .prop3-summary {
+            padding: 24px 20px;
+            text-align: center;
+            background: white;
+        }
+        
+        .prop3-total {
+            font-size: 40px;
+            font-weight: 300;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+        
+        .prop3-label {
+            font-size: 12px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .prop3-expense {
+            padding: 20px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .prop3-expense-left {
+            flex: 1;
+        }
+        
+        .prop3-expense-amount {
+            font-size: 18px;
+            font-weight: 500;
+            color: #059669;
+        }
+        
+        .prop3-expense-meta {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        
+        .prop3-btn-add {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            border: none;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            cursor: pointer;
+        }
+        
+        /* PROPUESTA 4: Moderno con Acentos */
+        .prop4-header {
+            background: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .prop4-logo {
+            width: 40px;
+            height: 40px;
+            background: #10b981;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .prop4-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 20px;
+            background: white;
+        }
+        
+        .prop4-stat {
+            background: #f0fdf4;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .prop4-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 4px;
+        }
+        
+        .prop4-stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .prop4-expense {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .prop4-expense-icon {
+            width: 48px;
+            height: 48px;
+            background: #d1fae5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #059669;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .prop4-expense-content {
+            flex: 1;
+        }
+        
+        .prop4-expense-amount {
+            font-size: 18px;
+            font-weight: 600;
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-bottom: 40px; color: #059669;">Propuestas de Diseño - MoneyTracker</h1>
+    
+    <!-- PROPUESTA 1: Minimalista Clásico -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 1: Minimalista Clásico</div>
+        <div class="prop1-header">
+            <h1>MoneyTracker</h1>
+            <p>Gastos Diarios</p>
+        </div>
+        <div class="prop1-summary">
+            <div class="prop1-summary-total">€1,234.56</div>
+            <div style="color: #6b7280; font-size: 14px;">Total del mes</div>
+        </div>
+        <div class="prop1-form">
+            <input type="text" class="prop1-input" placeholder="Monto" value="25.50">
+            <input type="text" class="prop1-input" placeholder="Categoría" value="Comida">
+            <button class="prop1-btn">+ Agregar Gasto</button>
+        </div>
+        <div>
+            <div class="prop1-expense">
+                <div>
+                    <div class="prop1-expense-amount">€45.00</div>
+                    <div class="prop1-expense-details">Supermercado • Alvaro</div>
+                </div>
+            </div>
+            <div class="prop1-expense">
+                <div>
+                    <div class="prop1-expense-amount">€12.50</div>
+                    <div class="prop1-expense-details">Restaurante • Maryam</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 2: Cards Flotantes -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 2: Cards Flotantes</div>
+        <div class="prop2-header">
+            <h1>MoneyTracker</h1>
+            <p style="opacity: 0.9; margin-top: 4px;">Gastos Diarios</p>
+        </div>
+        <div class="prop2-card">
+            <div class="prop2-card-total">€1,234.56</div>
+            <div style="color: #6b7280; font-size: 14px; margin-bottom: 16px;">Total del mes</div>
+            <div>
+                <span class="prop2-tag">Comida</span>
+                <span class="prop2-tag">Transporte</span>
+                <span class="prop2-tag">Hogar</span>
+            </div>
+        </div>
+        <div class="prop2-expense-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 20px; font-weight: 700; color: #059669; margin-bottom: 4px;">€45.00</div>
+                    <div style="font-size: 14px; color: #6b7280;">Supermercado • Alvaro</div>
+                </div>
+            </div>
+        </div>
+        <div class="prop2-expense-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 20px; font-weight: 700; color: #059669; margin-bottom: 4px;">€12.50</div>
+                    <div style="font-size: 14px; color: #6b7280;">Restaurante • Maryam</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 3: Ultra Minimalista -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 3: Ultra Minimalista</div>
+        <div class="prop3-header">
+            <h1>MoneyTracker</h1>
+        </div>
+        <div class="prop3-summary">
+            <div class="prop3-total">€1,234</div>
+            <div class="prop3-label">Total del mes</div>
+        </div>
+        <div>
+            <div class="prop3-expense">
+                <div class="prop3-expense-left">
+                    <div class="prop3-expense-amount">€45.00</div>
+                    <div class="prop3-expense-meta">Supermercado • Alvaro</div>
+                </div>
+            </div>
+            <div class="prop3-expense">
+                <div class="prop3-expense-left">
+                    <div class="prop3-expense-amount">€12.50</div>
+                    <div class="prop3-expense-meta">Restaurante • Maryam</div>
+                </div>
+            </div>
+        </div>
+        <button class="prop3-btn-add">+</button>
+    </div>
+    
+    <!-- PROPUESTA 4: Moderno con Acentos -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 4: Moderno con Acentos</div>
+        <div class="prop4-header">
+            <div class="prop4-logo">M</div>
+            <div style="flex: 1; margin-left: 12px;">
+                <div style="font-weight: 600; color: #059669;">MoneyTracker</div>
+                <div style="font-size: 12px; color: #9ca3af;">Gastos Diarios</div>
+            </div>
+        </div>
+        <div class="prop4-stats">
+            <div class="prop4-stat">
+                <div class="prop4-stat-value">€1,234</div>
+                <div class="prop4-stat-label">Total</div>
+            </div>
+            <div class="prop4-stat">
+                <div class="prop4-stat-value">42</div>
+                <div class="prop4-stat-label">Gastos</div>
+            </div>
+        </div>
+        <div>
+            <div class="prop4-expense">
+                <div class="prop4-expense-icon">€</div>
+                <div class="prop4-expense-content">
+                    <div class="prop4-expense-amount">€45.00</div>
+                    <div style="font-size: 13px; color: #9ca3af; margin-top: 2px;">Supermercado • Alvaro</div>
+                </div>
+            </div>
+            <div class="prop4-expense">
+                <div class="prop4-expense-icon">€</div>
+                <div class="prop4-expense-content">
+                    <div class="prop4-expense-amount">€12.50</div>
+                    <div style="font-size: 13px; color: #9ca3af; margin-top: 2px;">Restaurante • Maryam</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: #6b7280;">
+        <p>Desliza para ver todas las propuestas</p>
+        <p style="margin-top: 8px; font-size: 14px;">Todas las propuestas son mobile-first y usan paleta blanco/verde</p>
+    </div>
+</body>
+</html>
+

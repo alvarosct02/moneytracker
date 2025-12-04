@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuestas Creativas de Formulario - MoneyTracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .proposal {
+            max-width: 400px;
+            margin: 0 auto 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .proposal-title {
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        /* PROPUESTA 1: Teclado Numérico Personalizado */
+        .prop1-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .prop1-amount-display {
+            padding: 30px 20px;
+            text-align: center;
+            background: #f0fdf4;
+        }
+        
+        .prop1-currency-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .prop1-amount-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #059669;
+            letter-spacing: -1px;
+        }
+        
+        .prop1-quick-amounts {
+            display: flex;
+            gap: 8px;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .prop1-quick-btn {
+            flex: 1;
+            padding: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .prop1-quick-btn:hover {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+        
+        .prop1-keypad {
+            padding: 20px;
+        }
+        
+        .prop1-keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .prop1-key {
+            aspect-ratio: 1;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #10b981;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .prop1-key:hover {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+        
+        .prop1-key.delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .prop1-key.submit {
+            grid-column: span 1;
+            background: #10b981;
+            color: white;
+            font-size: 28px;
+        }
+        
+        .prop1-fields {
+            padding: 20px;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .prop1-field {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        
+        .prop1-field-icon {
+            font-size: 24px;
+        }
+        
+        .prop1-field-content {
+            flex: 1;
+        }
+        
+        .prop1-field-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .prop1-field-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #111827;
+        }
+        
+        /* PROPUESTA 2: Diseño Tipo Card Swipe */
+        .prop2-container {
+            height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prop2-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 24px;
+            transition: transform 0.3s ease;
+        }
+        
+        .prop2-card.active {
+            transform: translateX(0);
+            z-index: 2;
+        }
+        
+        .prop2-card.next {
+            transform: translateX(100%);
+            z-index: 1;
+        }
+        
+        .prop2-card.prev {
+            transform: translateX(-100%);
+            z-index: 1;
+        }
+        
+        .prop2-step-indicator {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        
+        .prop2-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e5e7eb;
+        }
+        
+        .prop2-dot.active {
+            background: #10b981;
+            width: 24px;
+            border-radius: 4px;
+        }
+        
+        .prop2-amount-large {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .prop2-amount-display {
+            font-size: 64px;
+            font-weight: 300;
+            color: #059669;
+            margin-bottom: 12px;
+        }
+        
+        .prop2-currency-selector {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .prop2-currency-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        
+        .prop2-currency-btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .prop2-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .prop2-option {
+            padding: 20px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .prop2-option.selected {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+        
+        .prop2-option-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .prop2-option-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .prop2-nav {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            right: 24px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .prop2-nav-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .prop2-nav-btn.back {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .prop2-nav-btn.next {
+            background: #10b981;
+            color: white;
+        }
+        
+        /* PROPUESTA 3: Diseño Conversacional */
+        .prop3-chat {
+            padding: 20px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .prop3-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .prop3-message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .prop3-message.bot {
+            flex-direction: row;
+        }
+        
+        .prop3-message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .prop3-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .prop3-avatar.bot {
+            background: #d1fae5;
+        }
+        
+        .prop3-avatar.user {
+            background: #10b981;
+            color: white;
+        }
+        
+        .prop3-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 15px;
+        }
+        
+        .prop3-bubble.bot {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .prop3-bubble.user {
+            background: #10b981;
+            color: white;
+        }
+        
+        .prop3-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .prop3-option-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .prop3-option-btn:hover {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+        
+        .prop3-input-area {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .prop3-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 24px;
+            font-size: 15px;
+        }
+        
+        .prop3-send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        /* PROPUESTA 4: Diseño con Preview en Tiempo Real */
+        .prop4-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .prop4-form-side {
+            padding: 24px;
+            border-right: 1px solid #f3f4f6;
+        }
+        
+        .prop4-preview-side {
+            padding: 24px;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .prop4-preview-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .prop4-preview-icon {
+            width: 48px;
+            height: 48px;
+            background: #d1fae5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .prop4-preview-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 8px;
+        }
+        
+        .prop4-preview-details {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .prop4-field {
+            margin-bottom: 20px;
+        }
+        
+        .prop4-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .prop4-input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        
+        .prop4-input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        .prop4-amount-row {
+            display: grid;
+            grid-template-columns: 1fr 80px;
+            gap: 8px;
+        }
+        
+        .prop4-submit {
+            width: 100%;
+            padding: 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .prop4-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .prop4-form-side {
+                border-right: none;
+                border-bottom: 1px solid #f3f4f6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-bottom: 40px; color: #059669;">Propuestas Creativas de Formulario</h1>
+    
+    <!-- PROPUESTA 1: Teclado Numérico Personalizado -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 1: Teclado Numérico Personalizado</div>
+        <div class="prop1-header">
+            <h2 style="font-size: 18px; font-weight: 600;">Nuevo Gasto</h2>
+            <button style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer;">✕</button>
+        </div>
+        
+        <div class="prop1-amount-display">
+            <div class="prop1-currency-badge">S/.</div>
+            <div class="prop1-amount-value">2,6</div>
+        </div>
+        
+        <div class="prop1-quick-amounts">
+            <button class="prop1-quick-btn">10</button>
+            <button class="prop1-quick-btn">25</button>
+            <button class="prop1-quick-btn">50</button>
+        </div>
+        
+        <div class="prop1-keypad">
+            <div class="prop1-keypad-grid">
+                <div class="prop1-key">1</div>
+                <div class="prop1-key">2</div>
+                <div class="prop1-key">3</div>
+                <div class="prop1-key">4</div>
+                <div class="prop1-key">5</div>
+                <div class="prop1-key">6</div>
+                <div class="prop1-key">7</div>
+                <div class="prop1-key">8</div>
+                <div class="prop1-key">9</div>
+                <div class="prop1-key">0</div>
+                <div class="prop1-key">,</div>
+                <div class="prop1-key delete">⌫</div>
+            </div>
+        </div>
+        
+        <div class="prop1-fields">
+            <div class="prop1-field">
+                <div class="prop1-field-icon">🍔</div>
+                <div class="prop1-field-content">
+                    <div class="prop1-field-label">Categoría</div>
+                    <div class="prop1-field-value">Comida</div>
+                </div>
+                <div style="color: #9ca3af;">›</div>
+            </div>
+            <div class="prop1-field">
+                <div class="prop1-field-icon">📅</div>
+                <div class="prop1-field-content">
+                    <div class="prop1-field-label">Fecha</div>
+                    <div class="prop1-field-value">Hoy</div>
+                </div>
+                <div style="color: #9ca3af;">›</div>
+            </div>
+            <div class="prop1-field">
+                <div class="prop1-field-icon">👤</div>
+                <div class="prop1-field-content">
+                    <div class="prop1-field-label">Quien</div>
+                    <div class="prop1-field-value">Alvaro</div>
+                </div>
+                <div style="color: #9ca3af;">›</div>
+            </div>
+        </div>
+        
+        <div style="padding: 20px;">
+            <button class="prop1-key submit" style="width: 100%; grid-column: span 3; margin-top: 12px;">✓ Crear</button>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 2: Diseño Tipo Card Swipe -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 2: Card Swipe (Deslizar)</div>
+        <div class="prop2-container">
+            <!-- Card 1: Monto -->
+            <div class="prop2-card active">
+                <div class="prop2-step-indicator">
+                    <div class="prop2-dot active"></div>
+                    <div class="prop2-dot"></div>
+                    <div class="prop2-dot"></div>
+                </div>
+                <div class="prop2-amount-large">
+                    <div class="prop2-amount-display">25.50</div>
+                    <div class="prop2-currency-selector">
+                        <button class="prop2-currency-btn active">S/.</button>
+                        <button class="prop2-currency-btn">$</button>
+                    </div>
+                </div>
+                <div class="prop2-nav">
+                    <button class="prop2-nav-btn back">Atrás</button>
+                    <button class="prop2-nav-btn next">Siguiente</button>
+                </div>
+            </div>
+            
+            <!-- Card 2: Categoría -->
+            <div class="prop2-card next">
+                <div class="prop2-step-indicator">
+                    <div class="prop2-dot"></div>
+                    <div class="prop2-dot active"></div>
+                    <div class="prop2-dot"></div>
+                </div>
+                <h3 style="text-align: center; margin-bottom: 24px; font-size: 20px;">¿En qué gastaste?</h3>
+                <div class="prop2-options-grid">
+                    <div class="prop2-option selected">
+                        <div class="prop2-option-icon">🍔</div>
+                        <div class="prop2-option-label">Comida</div>
+                    </div>
+                    <div class="prop2-option">
+                        <div class="prop2-option-icon">🚗</div>
+                        <div class="prop2-option-label">Transporte</div>
+                    </div>
+                    <div class="prop2-option">
+                        <div class="prop2-option-icon">🏠</div>
+                        <div class="prop2-option-label">Hogar</div>
+                    </div>
+                    <div class="prop2-option">
+                        <div class="prop2-option-icon">💊</div>
+                        <div class="prop2-option-label">Salud</div>
+                    </div>
+                </div>
+                <div class="prop2-nav">
+                    <button class="prop2-nav-btn back">Atrás</button>
+                    <button class="prop2-nav-btn next">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 3: Diseño Conversacional -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 3: Conversacional (Chat)</div>
+        <div class="prop3-chat">
+            <div class="prop3-messages">
+                <div class="prop3-message bot">
+                    <div class="prop3-avatar bot">💰</div>
+                    <div>
+                        <div class="prop3-bubble bot">¿Cuánto gastaste?</div>
+                        <div class="prop3-options">
+                            <button class="prop3-option-btn">10</button>
+                            <button class="prop3-option-btn">25</button>
+                            <button class="prop3-option-btn">50</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="prop3-message user">
+                    <div class="prop3-avatar user">✓</div>
+                    <div class="prop3-bubble user">25.50</div>
+                </div>
+                <div class="prop3-message bot">
+                    <div class="prop3-avatar bot">📂</div>
+                    <div>
+                        <div class="prop3-bubble bot">¿En qué categoría?</div>
+                        <div class="prop3-options">
+                            <button class="prop3-option-btn">🍔 Comida</button>
+                            <button class="prop3-option-btn">🚗 Transporte</button>
+                            <button class="prop3-option-btn">🏠 Hogar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="prop3-input-area">
+                <input type="text" class="prop3-input" placeholder="Escribe aquí...">
+                <button class="prop3-send-btn">→</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 4: Preview en Tiempo Real -->
+    <div class="proposal" style="max-width: 600px;">
+        <div class="proposal-title">Propuesta 4: Preview en Tiempo Real</div>
+        <div class="prop4-layout">
+            <div class="prop4-form-side">
+                <h3 style="margin-bottom: 20px; font-size: 18px;">Nuevo Gasto</h3>
+                <div class="prop4-field">
+                    <label class="prop4-label">Monto</label>
+                    <div class="prop4-amount-row">
+                        <input type="number" class="prop4-input" value="25.50">
+                        <select class="prop4-input">
+                            <option>S/.</option>
+                            <option>$</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Categoría</label>
+                    <select class="prop4-input">
+                        <option>Comida</option>
+                    </select>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Subcategoría</label>
+                    <select class="prop4-input">
+                        <option>Supermercado</option>
+                    </select>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Quien</label>
+                    <select class="prop4-input">
+                        <option>Alvaro</option>
+                    </select>
+                </div>
+                <button class="prop4-submit">Crear Gasto</button>
+            </div>
+            <div class="prop4-preview-side">
+                <div class="prop4-preview-card">
+                    <div class="prop4-preview-icon">🍔</div>
+                    <div class="prop4-preview-amount">S/. 25.50</div>
+                    <div class="prop4-preview-details">Comida • Supermercado</div>
+                    <div class="prop4-preview-details">Alvaro</div>
+                    <div class="prop4-preview-details" style="margin-top: 12px; font-size: 12px; color: #9ca3af;">Hoy, 4 Dic</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: #6b7280;">
+        <p>Desliza para ver todas las propuestas creativas</p>
+        <p style="margin-top: 8px; font-size: 14px;">Diseños innovadores e interactivos</p>
+    </div>
+</body>
+</html>
+

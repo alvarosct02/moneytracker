@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuestas de Formulario - MoneyTracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .proposal {
+            max-width: 400px;
+            margin: 0 auto 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .proposal-title {
+            padding: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        /* PROPUESTA 1: Formulario en Pasos */
+        .prop1-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prop1-steps {
+            display: flex;
+            gap: 8px;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .prop1-step {
+            flex: 1;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+        }
+        
+        .prop1-step.active {
+            background: #10b981;
+        }
+        
+        .prop1-form {
+            padding: 20px;
+        }
+        
+        .prop1-input-group {
+            margin-bottom: 16px;
+        }
+        
+        .prop1-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+        
+        .prop1-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        
+        .prop1-input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        .prop1-amount-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+        }
+        
+        .prop1-btn {
+            width: 100%;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        /* PROPUESTA 2: Cards Agrupadas */
+        .prop2-header {
+            padding: 24px 20px;
+            background: #f0fdf4;
+            border-bottom: 2px solid #10b981;
+        }
+        
+        .prop2-section {
+            padding: 20px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .prop2-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .prop2-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+        }
+        
+        .prop2-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        
+        .prop2-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+            background: white;
+        }
+        
+        .prop2-actions {
+            padding: 20px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .prop2-btn-cancel {
+            flex: 1;
+            padding: 14px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .prop2-btn-submit {
+            flex: 2;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        /* PROPUESTA 3: Compacto con Iconos */
+        .prop3-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prop3-form {
+            padding: 0 20px 20px;
+        }
+        
+        .prop3-field {
+            margin-bottom: 16px;
+        }
+        
+        .prop3-field-with-icon {
+            position: relative;
+        }
+        
+        .prop3-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+        
+        .prop3-input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        
+        .prop3-amount-row {
+            display: grid;
+            grid-template-columns: 1fr 80px;
+            gap: 8px;
+        }
+        
+        .prop3-currency-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #d1fae5;
+            color: #059669;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .prop3-btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 24px;
+        }
+        
+        .prop3-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .prop3-btn-cancel {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .prop3-btn-submit {
+            background: #10b981;
+            color: white;
+        }
+        
+        /* PROPUESTA 4: Modal Flotante */
+        .prop4-overlay {
+            background: rgba(0,0,0,0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .prop4-modal {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .prop4-header {
+            padding: 20px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+        
+        .prop4-body {
+            padding: 20px;
+        }
+        
+        .prop4-field {
+            margin-bottom: 20px;
+        }
+        
+        .prop4-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .prop4-input {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .prop4-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .prop4-amount-row {
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            gap: 12px;
+        }
+        
+        .prop4-currency-select {
+            padding: 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .prop4-footer {
+            padding: 20px;
+            border-top: 1px solid #f3f4f6;
+            display: flex;
+            gap: 12px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+        }
+        
+        .prop4-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .prop4-btn-cancel {
+            background: #f9fafb;
+            color: #6b7280;
+        }
+        
+        .prop4-btn-submit {
+            background: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-bottom: 40px; color: #059669;">Propuestas de Formulario - MoneyTracker</h1>
+    
+    <!-- PROPUESTA 1: Formulario en Pasos -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 1: Formulario en Pasos</div>
+        <div class="prop1-header">
+            <h2 style="font-size: 18px; font-weight: 600;">Nuevo Gasto</h2>
+            <button style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer;">✕</button>
+        </div>
+        <div class="prop1-steps">
+            <div class="prop1-step active"></div>
+            <div class="prop1-step"></div>
+            <div class="prop1-step"></div>
+        </div>
+        <div class="prop1-form">
+            <div class="prop1-input-group">
+                <label class="prop1-label">Monto y Moneda</label>
+                <div class="prop1-amount-row">
+                    <input type="number" class="prop1-input" placeholder="0.00" value="25.50">
+                    <select class="prop1-input">
+                        <option>S/.</option>
+                        <option>$</option>
+                    </select>
+                </div>
+            </div>
+            <div class="prop1-input-group">
+                <label class="prop1-label">Fecha</label>
+                <input type="date" class="prop1-input" value="2024-12-04">
+            </div>
+            <button class="prop1-btn">Siguiente</button>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 2: Cards Agrupadas -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 2: Cards Agrupadas</div>
+        <div class="prop2-header">
+            <h2 style="font-size: 20px; font-weight: 600; color: #059669;">Nuevo Gasto</h2>
+        </div>
+        <div class="prop2-section">
+            <div class="prop2-section-title">💰 Información Básica</div>
+            <div class="prop2-grid">
+                <input type="number" class="prop2-input" placeholder="Monto" value="25.50">
+                <select class="prop2-select">
+                    <option>S/.</option>
+                    <option>$</option>
+                </select>
+            </div>
+            <input type="date" class="prop2-input" style="margin-top: 12px; width: 100%;" value="2024-12-04">
+        </div>
+        <div class="prop2-section">
+            <div class="prop2-section-title">📂 Categorización</div>
+            <select class="prop2-input" style="margin-bottom: 12px;">
+                <option>Comida</option>
+            </select>
+            <select class="prop2-input" style="margin-bottom: 12px;">
+                <option>Supermercado</option>
+            </select>
+            <select class="prop2-input">
+                <option>Alvaro</option>
+            </select>
+        </div>
+        <div class="prop2-actions">
+            <button class="prop2-btn-cancel">Cancelar</button>
+            <button class="prop2-btn-submit">Crear Gasto</button>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 3: Compacto con Iconos -->
+    <div class="proposal">
+        <div class="proposal-title">Propuesta 3: Compacto con Iconos</div>
+        <div class="prop3-header">
+            <h2 style="font-size: 18px; font-weight: 600;">Nuevo Gasto</h2>
+            <button style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer;">✕</button>
+        </div>
+        <div class="prop3-form">
+            <div class="prop3-field">
+                <div class="prop3-amount-row">
+                    <div class="prop3-field-with-icon">
+                        <span class="prop3-icon">💰</span>
+                        <input type="number" class="prop3-input" placeholder="Monto" value="25.50">
+                    </div>
+                    <div class="prop3-currency-badge">S/.</div>
+                </div>
+            </div>
+            <div class="prop3-field">
+                <div class="prop3-field-with-icon">
+                    <span class="prop3-icon">📅</span>
+                    <input type="date" class="prop3-input" value="2024-12-04">
+                </div>
+            </div>
+            <div class="prop3-field">
+                <div class="prop3-field-with-icon">
+                    <span class="prop3-icon">📂</span>
+                    <select class="prop3-input">
+                        <option>Comida</option>
+                    </select>
+                </div>
+            </div>
+            <div class="prop3-field">
+                <div class="prop3-field-with-icon">
+                    <span class="prop3-icon">🏷️</span>
+                    <select class="prop3-input">
+                        <option>Supermercado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="prop3-field">
+                <div class="prop3-field-with-icon">
+                    <span class="prop3-icon">👤</span>
+                    <select class="prop3-input">
+                        <option>Alvaro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="prop3-btn-row">
+                <button class="prop3-btn prop3-btn-cancel">Cancelar</button>
+                <button class="prop3-btn prop3-btn-submit">Crear</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROPUESTA 4: Modal Flotante -->
+    <div class="prop4-overlay">
+        <div class="prop4-modal">
+            <div class="prop4-header">
+                <h2 style="font-size: 20px; font-weight: 600;">Nuevo Gasto</h2>
+                <button style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
+            </div>
+            <div class="prop4-body">
+                <div class="prop4-field">
+                    <label class="prop4-label">Monto</label>
+                    <div class="prop4-amount-row">
+                        <input type="number" class="prop4-input" placeholder="0.00" value="25.50">
+                        <select class="prop4-currency-select">
+                            <option>S/.</option>
+                            <option>$</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Fecha</label>
+                    <input type="date" class="prop4-input" value="2024-12-04">
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Categoría</label>
+                    <select class="prop4-input">
+                        <option>Comida</option>
+                    </select>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Subcategoría</label>
+                    <select class="prop4-input">
+                        <option>Supermercado</option>
+                    </select>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Quien hace el gasto</label>
+                    <select class="prop4-input">
+                        <option>Alvaro</option>
+                    </select>
+                </div>
+                <div class="prop4-field">
+                    <label class="prop4-label">Descripción (opcional)</label>
+                    <textarea class="prop4-input" rows="3" placeholder="Agregar nota..."></textarea>
+                </div>
+            </div>
+            <div class="prop4-footer">
+                <button class="prop4-btn prop4-btn-cancel">Cancelar</button>
+                <button class="prop4-btn prop4-btn-submit">Crear Gasto</button>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: #6b7280;">
+        <p>Desliza para ver todas las propuestas</p>
+        <p style="margin-top: 8px; font-size: 14px;">Todas las propuestas son mobile-first y usan paleta blanco/verde</p>
+    </div>
+</body>
+</html>
+
