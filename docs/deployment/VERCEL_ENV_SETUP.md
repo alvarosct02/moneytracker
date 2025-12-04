@@ -41,3 +41,4 @@ Después de configurar y redesplegar:
 
 ⚠️ **IMPORTANTE:** Las credenciales mostradas arriba son de ejemplo. Usa las credenciales reales que Neon te proporcionó.
 
+

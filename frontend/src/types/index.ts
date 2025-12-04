@@ -19,17 +19,24 @@ export interface ExpenseSummary {
   byOwner: Record<string, { PEN: number; USD: number }>;
 }
 
-export const CATEGORIES = {
-  Comida: ['Supermercado', 'Restaurantes', 'Delivery', 'Cafetería'],
-  Transporte: ['Gasolina', 'Estacionamiento', 'Transporte público', 'Mantenimiento'],
-  Hogar: ['Servicios (luz, agua, gas)', 'Mantenimiento', 'Decoración', 'Limpieza'],
-  Salud: ['Farmacia', 'Médico', 'Seguro médico', 'Gimnasio'],
-  Entretenimiento: ['Cine', 'Streaming', 'Eventos', 'Hobbies'],
-  Otros: ['Varios', 'Regalos', 'Donaciones'],
-} as const;
+export interface Category {
+  id: number;
+  name: string;
+  icon?: string;
+  display_order: number;
+  created_at?: string;
+}
+
+export interface Subcategory {
+  id: number;
+  category_id: number;
+  name: string;
+  display_order: number;
+  created_at?: string;
+  category_name?: string;
+}
 
 export const OWNERS = ['Alvaro', 'Maryam'] as const;
 
-export type Category = keyof typeof CATEGORIES;
 export type Owner = typeof OWNERS[number];
 

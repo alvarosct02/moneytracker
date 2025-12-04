@@ -1,4 +1,6 @@
-import { Expense, CATEGORIES, OWNERS, Category } from '../types';
+import { useState, useEffect } from 'react';
+import { Expense, OWNERS, Category, Subcategory } from '../types';
+import { api } from '../services/api';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -41,6 +43,43 @@ export default function ExpenseList({
   filters,
   onFilterChange,
 }: ExpenseListProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await api.getCategories();
+        setCategories(cats);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    const loadSubcategories = async () => {
+      if (!filters.category) {
+        setSubcategories([]);
+        return;
+      }
+      try {
+        const selectedCategory = categories.find(c => c.name === filters.category);
+        if (selectedCategory) {
+          const subs = await api.getSubcategories(selectedCategory.id);
+          setSubcategories(subs);
+        }
+      } catch (error) {
+        console.error('Error loading subcategories:', error);
+      }
+    };
+    loadSubcategories();
+  }, [filters.category, categories]);
+
   const handleDelete = (id: number) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
       onDelete(id);
@@ -56,21 +95,18 @@ export default function ExpenseList({
     });
   };
 
-  const availableSubcategories = filters.category
-    ? CATEGORIES[filters.category as Category] || []
-    : [];
-
-  const getCategoryIcon = (category: string) => {
-    const icons: Record<string, string> = {
-      'Comida': '🍔',
-      'Transporte': '🚗',
-      'Hogar': '🏠',
-      'Salud': '💊',
-      'Entretenimiento': '🎬',
-      'Otros': '📦',
-    };
-    return icons[category] || '💰';
+  const getCategoryIcon = (categoryName: string) => {
+    const cat = categories.find(c => c.name === categoryName);
+    return cat?.icon || '💰';
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl p-12 text-center shadow-sm">
+        <p className="text-gray-400 text-sm">Cargando categorías...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -89,9 +125,9 @@ export default function ExpenseList({
             className="text-xs px-2 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-700"
           >
             <option value="" className="text-gray-700">Todas</option>
-            {Object.keys(CATEGORIES).map((cat) => (
-              <option key={cat} value={cat} className="text-gray-700">
-                {cat}
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name} className="text-gray-700">
+                {cat.name}
               </option>
             ))}
           </select>
@@ -108,9 +144,9 @@ export default function ExpenseList({
             className="text-xs px-2 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-700 disabled:bg-gray-50 disabled:text-gray-400"
           >
             <option value="" className="text-gray-700">Todas</option>
-            {availableSubcategories.map((sub) => (
-              <option key={sub} value={sub} className="text-gray-700">
-                {sub}
+            {subcategories.map((sub) => (
+              <option key={sub.id} value={sub.name} className="text-gray-700">
+                {sub.name}
               </option>
             ))}
           </select>
@@ -196,4 +232,3 @@ export default function ExpenseList({
     </div>
   );
 }
-

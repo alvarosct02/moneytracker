@@ -1,4 +1,4 @@
-import { Expense, ExpenseSummary } from '../types';
+import { Expense, ExpenseSummary, Category, Subcategory } from '../types';
 
 const API_BASE = '/api';
 
@@ -57,6 +57,77 @@ export const api = {
     const response = await fetch(`${API_BASE}/summary`);
     if (!response.ok) throw new Error('Failed to fetch summary');
     return response.json();
+  },
+
+  // Categories API
+  async getCategories(): Promise<Category[]> {
+    const response = await fetch(`${API_BASE}/categories`);
+    if (!response.ok) throw new Error('Failed to fetch categories');
+    return response.json();
+  },
+
+  async createCategory(category: Omit<Category, 'id' | 'created_at'>): Promise<Category> {
+    const response = await fetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(category),
+    });
+    if (!response.ok) throw new Error('Failed to create category');
+    return response.json();
+  },
+
+  async updateCategory(id: number, category: Partial<Category>): Promise<Category> {
+    const response = await fetch(`${API_BASE}/categories?id=${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(category),
+    });
+    if (!response.ok) throw new Error('Failed to update category');
+    return response.json();
+  },
+
+  async deleteCategory(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE}/categories?id=${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete category');
+  },
+
+  // Subcategories API
+  async getSubcategories(categoryId?: number): Promise<Subcategory[]> {
+    const url = categoryId 
+      ? `${API_BASE}/subcategories?category_id=${categoryId}`
+      : `${API_BASE}/subcategories`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch subcategories');
+    return response.json();
+  },
+
+  async createSubcategory(subcategory: Omit<Subcategory, 'id' | 'created_at' | 'category_name'>): Promise<Subcategory> {
+    const response = await fetch(`${API_BASE}/subcategories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subcategory),
+    });
+    if (!response.ok) throw new Error('Failed to create subcategory');
+    return response.json();
+  },
+
+  async updateSubcategory(id: number, subcategory: Partial<Subcategory>): Promise<Subcategory> {
+    const response = await fetch(`${API_BASE}/subcategories?id=${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subcategory),
+    });
+    if (!response.ok) throw new Error('Failed to update subcategory');
+    return response.json();
+  },
+
+  async deleteSubcategory(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE}/subcategories?id=${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete subcategory');
   },
 };
 

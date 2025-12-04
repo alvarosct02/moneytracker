@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Expense, CATEGORIES, OWNERS, Category, Currency } from '../types';
+import { Expense, OWNERS, Currency, Category, Subcategory } from '../types';
+import { api } from '../services/api';
 import SelectPopup from './SelectPopup';
 import DatePopup from './DatePopup';
 
@@ -12,11 +13,16 @@ interface ExpenseFormProps {
 export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseFormProps) {
   const [amount, setAmount] = useState(expense?.amount.toString() || '');
   const [currency, setCurrency] = useState<Currency>(expense?.currency || 'PEN');
-  const [category, setCategory] = useState<Category>(expense?.category as Category || 'Comida');
-  const [subcategory, setSubcategory] = useState(expense?.subcategory || CATEGORIES[category][0]);
+  const [category, setCategory] = useState<string>(expense?.category || '');
+  const [subcategory, setSubcategory] = useState(expense?.subcategory || '');
   const [owner, setOwner] = useState(expense?.owner || OWNERS[0]);
   const [description, setDescription] = useState(expense?.description || '');
   const [date, setDate] = useState(expense?.date || new Date().toISOString().split('T')[0]);
+  
+  // Categories and subcategories state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Popup states
   const [showCategoryPopup, setShowCategoryPopup] = useState(false);
@@ -24,23 +30,58 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
   const [showOwnerPopup, setShowOwnerPopup] = useState(false);
   const [showDatePopup, setShowDatePopup] = useState(false);
 
+  // Load categories on mount
   useEffect(() => {
-    // Reset subcategory when category changes
-    if (CATEGORIES[category]) {
-      setSubcategory(CATEGORIES[category][0]);
-    }
-  }, [category]);
-
-  const getCategoryIcon = (cat: string) => {
-    const icons: Record<string, string> = {
-      'Comida': '🍔',
-      'Transporte': '🚗',
-      'Hogar': '🏠',
-      'Salud': '💊',
-      'Entretenimiento': '🎬',
-      'Otros': '📦',
+    const loadCategories = async () => {
+      try {
+        setLoading(true);
+        const cats = await api.getCategories();
+        setCategories(cats);
+        
+        // Set default category if not editing
+        if (!expense && cats.length > 0 && !category) {
+          setCategory(cats[0].name);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    return icons[cat] || '📂';
+    
+    loadCategories();
+  }, []);
+
+  // Load subcategories when category changes
+  useEffect(() => {
+    const loadSubcategories = async () => {
+      if (!category) return;
+      
+      try {
+        const selectedCategory = categories.find(c => c.name === category);
+        if (!selectedCategory) return;
+        
+        const subs = await api.getSubcategories(selectedCategory.id);
+        setSubcategories(subs);
+        
+        // Set default subcategory if not editing and subcategories exist
+        if (!expense && subs.length > 0 && !subcategory) {
+          setSubcategory(subs[0].name);
+        } else if (expense && subs.length > 0 && !subs.find(s => s.name === subcategory)) {
+          // If current subcategory doesn't exist in new category, set first one
+          setSubcategory(subs[0].name);
+        }
+      } catch (error) {
+        console.error('Error loading subcategories:', error);
+      }
+    };
+    
+    loadSubcategories();
+  }, [category, categories]);
+
+  const getCategoryIcon = (catName: string) => {
+    const cat = categories.find(c => c.name === catName);
+    return cat?.icon || '📂';
   };
 
   const formatDate = (dateString: string) => {
@@ -69,6 +110,10 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!category || !subcategory) {
+      alert('Por favor selecciona una categoría y subcategoría');
+      return;
+    }
     onSubmit({
       amount: parseFloat(amount),
       currency,
@@ -84,6 +129,14 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
     const value = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
     setAmount(value);
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+        <div className="text-gray-500">Cargando categorías...</div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -174,7 +227,7 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
           <div className="text-2xl">{getCategoryIcon(category)}</div>
           <div className="flex-1">
             <div className="text-xs text-gray-500 mb-1">Categoría</div>
-            <div className="text-base font-medium text-gray-800">{category}</div>
+            <div className="text-base font-medium text-gray-800">{category || 'Seleccionar...'}</div>
           </div>
           <div className="text-gray-400">›</div>
         </button>
@@ -183,12 +236,13 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
         <button
           type="button"
           onClick={() => setShowSubcategoryPopup(true)}
-          className="w-full flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
+          disabled={!category || subcategories.length === 0}
+          className="w-full flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <div className="text-2xl">🏷️</div>
           <div className="flex-1">
             <div className="text-xs text-gray-500 mb-1">Subcategoría</div>
-            <div className="text-base font-medium text-gray-800">{subcategory}</div>
+            <div className="text-base font-medium text-gray-800">{subcategory || 'Seleccionar...'}</div>
           </div>
           <div className="text-gray-400">›</div>
         </button>
@@ -264,22 +318,22 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
         isOpen={showCategoryPopup}
         onClose={() => setShowCategoryPopup(false)}
         title="Seleccionar Categoría"
-        options={Object.keys(CATEGORIES).map((cat) => ({
-          value: cat,
-          label: cat,
-          icon: getCategoryIcon(cat),
+        options={categories.map((cat) => ({
+          value: cat.name,
+          label: cat.name,
+          icon: cat.icon,
         }))}
         selectedValue={category}
-        onSelect={(value) => setCategory(value as Category)}
+        onSelect={(value) => setCategory(value as string)}
       />
 
       <SelectPopup
         isOpen={showSubcategoryPopup}
         onClose={() => setShowSubcategoryPopup(false)}
         title="Seleccionar Subcategoría"
-        options={CATEGORIES[category].map((sub) => ({
-          value: sub,
-          label: sub,
+        options={subcategories.map((sub) => ({
+          value: sub.name,
+          label: sub.name,
         }))}
         selectedValue={subcategory}
         onSelect={setSubcategory}
@@ -300,4 +354,3 @@ export default function ExpenseForm({ expense, onSubmit, onCancel }: ExpenseForm
     </form>
   );
 }
-

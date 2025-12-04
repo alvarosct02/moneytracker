@@ -99,3 +99,4 @@ npm install dotenv
 - La conexión pooled (`-pooler`) es mejor para desarrollo y producción
 - La conexión unpooled es mejor para migraciones o operaciones largas
 
+

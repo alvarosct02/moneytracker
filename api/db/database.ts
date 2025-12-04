@@ -1,18 +1,9 @@
-import Database from 'better-sqlite3';
-import { Pool, Client } from 'pg';
-import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
-
-// Check if PostgreSQL is configured
-const postgresUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+import { Pool } from 'pg';
 
 // PostgreSQL connection pool
 let pgPool: Pool | null = null;
 
-// SQLite database instance
-let sqliteDb: Database.Database | null = null;
-
-// Database interface to abstract SQLite and PostgreSQL
+// Database interface
 export interface DatabaseAdapter {
   query(sql: string, params?: any[]): Promise<any[]>;
   execute(sql: string, params?: any[]): Promise<void>;
@@ -20,20 +11,15 @@ export interface DatabaseAdapter {
   run(sql: string, params?: any[]): Promise<{ lastInsertRowid?: number | bigint }>;
 }
 
-// Helper function to convert SQLite syntax to PostgreSQL
-function convertSQLiteToPostgreSQL(sql: string, params?: any[]): { sql: string; params?: any[] } {
-  let pgSql = sql
-    .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, 'SERIAL PRIMARY KEY')
-    .replace(/REAL/g, 'NUMERIC')
-    .replace(/TEXT/g, 'VARCHAR(255)')
-    .replace(/CREATE INDEX IF NOT EXISTS/g, 'CREATE INDEX IF NOT EXISTS');
-
-  // Convert ? placeholders to $1, $2, etc.
-  if (params && params.length > 0) {
-    let paramIndex = 1;
-    pgSql = pgSql.replace(/\?/g, () => `$${paramIndex++}`);
+// Helper function to convert ? placeholders to PostgreSQL $1, $2, etc.
+function convertToPostgreSQL(sql: string, params?: any[]): { sql: string; params?: any[] } {
+  if (!params || params.length === 0) {
+    return { sql };
   }
 
+  let paramIndex = 1;
+  const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
+  
   return { sql: pgSql, params };
 }
 
@@ -46,13 +32,13 @@ class PostgreSQLAdapter implements DatabaseAdapter {
   }
 
   async query(sql: string, params?: any[]): Promise<any[]> {
-    const { sql: pgSql, params: pgParams } = convertSQLiteToPostgreSQL(sql, params);
+    const { sql: pgSql, params: pgParams } = convertToPostgreSQL(sql, params);
     const result = await this.pool.query(pgSql, pgParams);
     return result.rows;
   }
 
   async execute(sql: string, params?: any[]): Promise<void> {
-    const { sql: pgSql, params: pgParams } = convertSQLiteToPostgreSQL(sql, params);
+    const { sql: pgSql, params: pgParams } = convertToPostgreSQL(sql, params);
     await this.pool.query(pgSql, pgParams);
   }
 
@@ -64,43 +50,13 @@ class PostgreSQLAdapter implements DatabaseAdapter {
   async run(sql: string, params?: any[]): Promise<{ lastInsertRowid?: number | bigint }> {
     // For INSERT, we need to return the inserted ID
     if (sql.trim().toUpperCase().startsWith('INSERT')) {
-      const { sql: pgSql, params: pgParams } = convertSQLiteToPostgreSQL(sql, params);
+      const { sql: pgSql, params: pgParams } = convertToPostgreSQL(sql, params);
       const result = await this.pool.query(pgSql + ' RETURNING id', pgParams);
       return { lastInsertRowid: result.rows[0]?.id };
     }
     await this.execute(sql, params);
     return {};
   }
-}
-
-// SQLite adapter wrapper
-class SQLiteAdapter implements DatabaseAdapter {
-  private db: Database.Database;
-
-  constructor(db: Database.Database) {
-    this.db = db;
-  }
-
-  async query(sql: string, params?: any[]): Promise<any[]> {
-    const stmt = this.db.prepare(sql);
-    return stmt.all(...(params || [])) as any[];
-  }
-
-  async execute(sql: string, params?: any[]): Promise<void> {
-    this.db.exec(sql);
-  }
-
-  async get(sql: string, params?: any[]): Promise<any> {
-    const stmt = this.db.prepare(sql);
-    return stmt.get(...(params || [])) || null;
-  }
-
-  async run(sql: string, params?: any[]): Promise<{ lastInsertRowid?: number | bigint }> {
-    const stmt = this.db.prepare(sql);
-    const result = stmt.run(...(params || []));
-    return { lastInsertRowid: result.lastInsertRowid };
-  }
-
 }
 
 let dbAdapter: DatabaseAdapter | null = null;
@@ -110,51 +66,33 @@ async function getDatabase(): Promise<DatabaseAdapter> {
     return dbAdapter;
   }
 
-  // Use PostgreSQL if available
-  if (postgresUrl) {
-    try {
-      console.log('🔌 Connecting to PostgreSQL...');
-      pgPool = new Pool({
-        connectionString: postgresUrl,
-        ssl: postgresUrl.includes('sslmode=require') ? { rejectUnauthorized: false } : undefined,
-      });
-      
-      dbAdapter = new PostgreSQLAdapter(pgPool);
-      console.log('✅ Connected to PostgreSQL');
-      
-      // Initialize schema
-      await initializePostgreSQLSchema();
-      
-      if (!dbAdapter) {
-        throw new Error('Database not initialized');
-      }
-      
-      return dbAdapter;
-    } catch (error) {
-      console.error('❌ Failed to connect to PostgreSQL:', error);
-      console.log('⚠️ Falling back to SQLite...');
-    }
+  // Check if PostgreSQL is configured
+  const postgresUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+  if (!postgresUrl) {
+    throw new Error('❌ POSTGRES_URL or DATABASE_URL environment variable is required');
   }
 
-  // Fallback to SQLite
   try {
-    console.log('🔌 Connecting to SQLite...');
-    const isVercel = process.env.VERCEL === '1';
-    const dbDir = isVercel ? '/tmp' : join(process.cwd(), 'db');
-    const dbPath = join(dbDir, 'expenses.db');
-
-    if (!existsSync(dbDir)) {
-      mkdirSync(dbDir, { recursive: true });
-      console.log(`✅ Database directory created: ${dbDir}`);
-    }
-
-    sqliteDb = new Database(dbPath);
-    console.log(`✅ Connected to SQLite: ${dbPath}`);
+    console.log('🔌 Connecting to PostgreSQL...');
+    pgPool = new Pool({
+      connectionString: postgresUrl,
+      ssl: postgresUrl.includes('sslmode=require') ? { rejectUnauthorized: false } : undefined,
+    });
     
-    dbAdapter = new SQLiteAdapter(sqliteDb);
+    dbAdapter = new PostgreSQLAdapter(pgPool);
+    console.log('✅ Connected to PostgreSQL');
     
     // Initialize schema
-    initializeSQLiteSchema();
+    await initializeSchema();
+    
+    // Seed categories and subcategories
+    try {
+      const { seedCategories } = await import('./seed.js');
+      await seedCategories(dbAdapter);
+    } catch (seedError) {
+      console.warn('⚠️ Warning: Could not seed categories:', seedError);
+    }
     
     if (!dbAdapter) {
       throw new Error('Database not initialized');
@@ -162,32 +100,60 @@ async function getDatabase(): Promise<DatabaseAdapter> {
     
     return dbAdapter;
   } catch (error) {
-    console.error('❌ Failed to connect to SQLite:', error);
+    console.error('❌ Failed to connect to PostgreSQL:', error);
     throw error;
   }
 }
 
-async function initializePostgreSQLSchema() {
+async function initializeSchema() {
   if (!pgPool) return;
   
   try {
+    // Create categories table
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        icon VARCHAR(10),
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create subcategories table
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS subcategories (
+        id SERIAL PRIMARY KEY,
+        category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(category_id, name)
+      );
+    `);
+
+    // Create expenses table
     await pgPool.query(`
       CREATE TABLE IF NOT EXISTS expenses (
         id SERIAL PRIMARY KEY,
         amount NUMERIC NOT NULL,
         currency VARCHAR(10) NOT NULL DEFAULT 'PEN',
+        category_id INTEGER REFERENCES categories(id) ON DELETE RESTRICT,
         category VARCHAR(255) NOT NULL,
+        subcategory_id INTEGER REFERENCES subcategories(id) ON DELETE RESTRICT,
         subcategory VARCHAR(255) NOT NULL,
         owner VARCHAR(255) NOT NULL,
         description TEXT,
         date VARCHAR(255) NOT NULL
       );
-
-      CREATE INDEX IF NOT EXISTS idx_date ON expenses(date);
-      CREATE INDEX IF NOT EXISTS idx_category ON expenses(category);
-      CREATE INDEX IF NOT EXISTS idx_subcategory ON expenses(subcategory);
-      CREATE INDEX IF NOT EXISTS idx_owner ON expenses(owner);
     `);
+
+    // Create basic indexes (always safe)
+    await pgPool.query(`CREATE INDEX IF NOT EXISTS idx_date ON expenses(date);`);
+    await pgPool.query(`CREATE INDEX IF NOT EXISTS idx_category ON expenses(category);`);
+    await pgPool.query(`CREATE INDEX IF NOT EXISTS idx_subcategory ON expenses(subcategory);`);
+    await pgPool.query(`CREATE INDEX IF NOT EXISTS idx_owner ON expenses(owner);`);
+    
     console.log('✅ PostgreSQL schema initialized');
     
     // Check if currency column exists (migration)
@@ -202,51 +168,32 @@ async function initializePostgreSQLSchema() {
       await pgPool.query(`ALTER TABLE expenses ADD COLUMN currency VARCHAR(10) NOT NULL DEFAULT 'PEN'`);
       console.log('✅ Migration completed: currency column added');
     }
+
+    // Check if category_id and subcategory_id columns exist (migration)
+    const categoryIdColumn = await pgPool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'expenses' AND column_name = 'category_id'
+    `);
+    
+    if (categoryIdColumn.rows.length === 0) {
+      console.log('🔄 Migrating: Adding category_id and subcategory_id columns...');
+      await pgPool.query(`ALTER TABLE expenses ADD COLUMN category_id INTEGER REFERENCES categories(id) ON DELETE RESTRICT`);
+      await pgPool.query(`ALTER TABLE expenses ADD COLUMN subcategory_id INTEGER REFERENCES subcategories(id) ON DELETE RESTRICT`);
+      console.log('✅ Migration completed: category_id and subcategory_id columns added');
+    }
+    
+    // Create indexes for category_id and subcategory_id (safe to run even if columns already exist)
+    try {
+      await pgPool.query(`CREATE INDEX IF NOT EXISTS idx_category_id ON expenses(category_id);`);
+      await pgPool.query(`CREATE INDEX IF NOT EXISTS idx_subcategory_id ON expenses(subcategory_id);`);
+    } catch (indexError) {
+      // Index creation might fail if columns don't exist, but that's ok
+      console.warn('⚠️ Could not create category indexes (columns may not exist yet):', indexError);
+    }
   } catch (error) {
     console.error('❌ Failed to initialize PostgreSQL schema:', error);
     throw error;
-  }
-}
-
-function initializeSQLiteSchema() {
-  if (!sqliteDb) return;
-  
-  try {
-    sqliteDb.exec(`
-      CREATE TABLE IF NOT EXISTS expenses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        amount REAL NOT NULL,
-        currency TEXT NOT NULL DEFAULT 'PEN',
-        category TEXT NOT NULL,
-        subcategory TEXT NOT NULL,
-        owner TEXT NOT NULL,
-        description TEXT,
-        date TEXT NOT NULL
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_date ON expenses(date);
-      CREATE INDEX IF NOT EXISTS idx_category ON expenses(category);
-      CREATE INDEX IF NOT EXISTS idx_subcategory ON expenses(subcategory);
-      CREATE INDEX IF NOT EXISTS idx_owner ON expenses(owner);
-    `);
-    console.log('✅ SQLite schema initialized');
-    
-    // Run migrations
-    try {
-      const tableInfo = sqliteDb.prepare("PRAGMA table_info(expenses)").all() as Array<{ name: string }>;
-      const hasCurrency = tableInfo.some(col => col.name === 'currency');
-      
-      if (!hasCurrency) {
-        console.log('🔄 Migrating: Adding currency column...');
-        sqliteDb.exec(`ALTER TABLE expenses ADD COLUMN currency TEXT NOT NULL DEFAULT 'PEN'`);
-        console.log('✅ Migration completed: currency column added');
-      }
-    } catch (migrationError) {
-      console.warn('⚠️ Migration warning:', migrationError);
-    }
-  } catch (schemaError) {
-    console.error('❌ Failed to initialize SQLite schema:', schemaError);
-    throw schemaError;
   }
 }
 

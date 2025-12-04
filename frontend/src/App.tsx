@@ -4,6 +4,7 @@ import { api } from './services/api';
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import ExpenseSummary from './components/ExpenseSummary';
+import CategoryManager from './components/CategoryManager';
 import { ExpenseSummary as SummaryType } from './types';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
   });
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>();
   const [showForm, setShowForm] = useState(false);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [filters, setFilters] = useState<{
     category?: string;
     subcategory?: string;
@@ -119,13 +121,23 @@ function App() {
               <p className="text-xs text-gray-400">Gastos Diarios</p>
             </div>
             {!showForm && (
-              <button
-                onClick={() => setShowForm(true)}
-                className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center text-xl font-light hover:bg-emerald-600 transition-colors shadow-sm"
-                aria-label="Nuevo gasto"
-              >
-                +
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowCategoryManager(true)}
+                  className="w-10 h-10 bg-gray-100 text-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-200 transition-colors shadow-sm"
+                  aria-label="Gestionar categorías"
+                  title="Gestionar categorías"
+                >
+                  ⚙️
+                </button>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center text-xl font-light hover:bg-emerald-600 transition-colors shadow-sm"
+                  aria-label="Nuevo gasto"
+                >
+                  +
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -154,6 +166,10 @@ function App() {
             onSubmit={handleFormSubmit}
             onCancel={handleCancel}
           />
+        )}
+
+        {showCategoryManager && (
+          <CategoryManager onClose={() => setShowCategoryManager(false)} />
         )}
       </main>
     </div>

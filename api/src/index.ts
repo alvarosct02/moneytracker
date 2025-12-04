@@ -17,7 +17,7 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
         config({ path: envPathApi });
         console.log('✅ Loaded .env.local from api directory');
       } else {
-        console.log('ℹ️  No .env.local found, using environment variables or SQLite fallback');
+        console.log('ℹ️  No .env.local found, using environment variables');
       }
     }
   } catch (error) {
@@ -30,6 +30,8 @@ import cors from 'cors';
 import expensesHandler from '../expenses';
 import summaryHandler from '../summary';
 import expensesIdHandler from '../handlers/expensesId';
+import categoriesHandler from '../categories';
+import subcategoriesHandler from '../subcategories';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const app = express();
@@ -92,6 +94,14 @@ app.post('/expenses', adaptHandler(expensesHandler));
 app.put('/expenses/:id', adaptHandler(expensesIdHandler));
 app.delete('/expenses/:id', adaptHandler(expensesIdHandler));
 app.get('/summary', adaptHandler(summaryHandler));
+app.get('/categories', adaptHandler(categoriesHandler));
+app.post('/categories', adaptHandler(categoriesHandler));
+app.put('/categories', adaptHandler(categoriesHandler));
+app.delete('/categories', adaptHandler(categoriesHandler));
+app.get('/subcategories', adaptHandler(subcategoriesHandler));
+app.post('/subcategories', adaptHandler(subcategoriesHandler));
+app.put('/subcategories', adaptHandler(subcategoriesHandler));
+app.delete('/subcategories', adaptHandler(subcategoriesHandler));
 
 // Routes with /api prefix (for Vite proxy)
 app.get('/api/expenses', adaptHandler(expensesHandler));
@@ -99,6 +109,14 @@ app.post('/api/expenses', adaptHandler(expensesHandler));
 app.put('/api/expenses/:id', adaptHandler(expensesIdHandler));
 app.delete('/api/expenses/:id', adaptHandler(expensesIdHandler));
 app.get('/api/summary', adaptHandler(summaryHandler));
+app.get('/api/categories', adaptHandler(categoriesHandler));
+app.post('/api/categories', adaptHandler(categoriesHandler));
+app.put('/api/categories', adaptHandler(categoriesHandler));
+app.delete('/api/categories', adaptHandler(categoriesHandler));
+app.get('/api/subcategories', adaptHandler(subcategoriesHandler));
+app.post('/api/subcategories', adaptHandler(subcategoriesHandler));
+app.put('/api/subcategories', adaptHandler(subcategoriesHandler));
+app.delete('/api/subcategories', adaptHandler(subcategoriesHandler));
 
 // Health check
 app.get('/health', (req, res) => {
