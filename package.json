@@ -9,7 +9,7 @@
     "build": "npm run build:frontend && npm run build:api",
     "build:frontend": "cd frontend && npm run build",
     "build:api": "cd api && npm run build",
-    "install:all": "npm install && cd frontend && npm install && cd ../api && npm install"
+    "install:all": "npm install || true && cd frontend && npm install || true && cd ../api && npm install || true"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
