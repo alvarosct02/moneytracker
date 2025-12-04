@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type Database from 'better-sqlite3';
 import { ExpenseSummary } from './types';
 
 export default async function handler(
@@ -21,7 +20,8 @@ export default async function handler(
 
   try {
     // Import database lazily
-    const db = (await import('./db/database.js')).default;
+    const getDb = (await import('./db/database.js')).default;
+    const db = await getDb();
     
     // Get current month start and end
     const now = new Date();
@@ -31,9 +31,10 @@ export default async function handler(
     const monthEnd = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
     // Get all expenses for current month
-    const expenses = db
-      .prepare('SELECT * FROM expenses WHERE date >= ? AND date <= ?')
-      .all(monthStart, monthEnd) as Array<{
+    const expenses = await db.query(
+      'SELECT * FROM expenses WHERE date >= ? AND date <= ?',
+      [monthStart, monthEnd]
+    ) as Array<{
       amount: number;
       currency: 'PEN' | 'USD';
       category: string;
@@ -52,28 +53,28 @@ export default async function handler(
     expenses.forEach((expense) => {
       // Totales por moneda
       if (expense.currency === 'PEN') {
-        summary.totalPEN += expense.amount;
+        summary.totalPEN += Number(expense.amount);
       } else {
-        summary.totalUSD += expense.amount;
+        summary.totalUSD += Number(expense.amount);
       }
 
       // Por categoría
       if (!summary.byCategory[expense.category]) {
         summary.byCategory[expense.category] = { PEN: 0, USD: 0 };
       }
-      summary.byCategory[expense.category][expense.currency] += expense.amount;
+      summary.byCategory[expense.category][expense.currency] += Number(expense.amount);
 
       // Por subcategoría
       if (!summary.bySubcategory[expense.subcategory]) {
         summary.bySubcategory[expense.subcategory] = { PEN: 0, USD: 0 };
       }
-      summary.bySubcategory[expense.subcategory][expense.currency] += expense.amount;
+      summary.bySubcategory[expense.subcategory][expense.currency] += Number(expense.amount);
 
       // Por owner
       if (!summary.byOwner[expense.owner]) {
         summary.byOwner[expense.owner] = { PEN: 0, USD: 0 };
       }
-      summary.byOwner[expense.owner][expense.currency] += expense.amount;
+      summary.byOwner[expense.owner][expense.currency] += Number(expense.amount);
     });
 
     return res.status(200).json(summary);
@@ -86,4 +87,3 @@ export default async function handler(
     });
   }
 }
-

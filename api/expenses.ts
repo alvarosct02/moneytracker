@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type Database from 'better-sqlite3';
 import { Expense } from './types';
 
 export default async function handler(
@@ -17,7 +16,8 @@ export default async function handler(
 
   try {
     // Import database lazily
-    const db = (await import('./db/database.js')).default;
+    const getDb = (await import('./db/database.js')).default;
+    const db = await getDb();
     
     switch (req.method) {
       case 'GET':
@@ -39,7 +39,7 @@ export default async function handler(
   }
 }
 
-function handleGet(req: VercelRequest, res: VercelResponse, db: Database.Database) {
+async function handleGet(req: VercelRequest, res: VercelResponse, db: any) {
   try {
     const { category, subcategory, owner } = req.query;
 
@@ -61,7 +61,7 @@ function handleGet(req: VercelRequest, res: VercelResponse, db: Database.Databas
 
     query += ' ORDER BY date DESC, id DESC';
 
-    const expenses = db.prepare(query).all(...params) as Expense[];
+    const expenses = await db.query(query, params);
     return res.status(200).json(expenses);
   } catch (error) {
     console.error('Error in handleGet:', error);
@@ -72,7 +72,7 @@ function handleGet(req: VercelRequest, res: VercelResponse, db: Database.Databas
   }
 }
 
-function handlePost(req: VercelRequest, res: VercelResponse, db: Database.Database) {
+async function handlePost(req: VercelRequest, res: VercelResponse, db: any) {
   try {
     const { amount, currency, category, subcategory, owner, description, date } = req.body;
 
@@ -84,14 +84,13 @@ function handlePost(req: VercelRequest, res: VercelResponse, db: Database.Databa
       return res.status(400).json({ error: 'Invalid currency. Must be PEN or USD' });
     }
 
-    const stmt = db.prepare(`
-      INSERT INTO expenses (amount, currency, category, subcategory, owner, description, date)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
+    const result = await db.run(
+      `INSERT INTO expenses (amount, currency, category, subcategory, owner, description, date)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [amount, currency, category, subcategory, owner, description || null, date]
+    );
 
-    const result = stmt.run(amount, currency, category, subcategory, owner, description || null, date);
-    const expense = db.prepare('SELECT * FROM expenses WHERE id = ?').get(result.lastInsertRowid) as Expense;
-
+    const expense = await db.get('SELECT * FROM expenses WHERE id = ?', [result.lastInsertRowid]);
     return res.status(201).json(expense);
   } catch (error) {
     console.error('Error in handlePost:', error);
@@ -101,4 +100,3 @@ function handlePost(req: VercelRequest, res: VercelResponse, db: Database.Databa
     });
   }
 }
-

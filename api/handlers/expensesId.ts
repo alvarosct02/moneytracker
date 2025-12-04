@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type Database from 'better-sqlite3';
 import { Expense } from '../types';
 
 export default async function handler(
@@ -24,7 +23,8 @@ export default async function handler(
 
   try {
     // Import database lazily
-    const db = (await import('../db/database.js')).default;
+    const getDb = (await import('../db/database.js')).default;
+    const db = await getDb();
     
     switch (req.method) {
       case 'PUT':
@@ -44,7 +44,7 @@ export default async function handler(
   }
 }
 
-function handlePut(req: VercelRequest, res: VercelResponse, id: number, db: Database.Database) {
+async function handlePut(req: VercelRequest, res: VercelResponse, id: number, db: any) {
   try {
     const { amount, currency, category, subcategory, owner, description, date } = req.body;
 
@@ -53,7 +53,7 @@ function handlePut(req: VercelRequest, res: VercelResponse, id: number, db: Data
     }
 
     // Check if expense exists
-    const existing = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as Expense | undefined;
+    const existing = await db.get('SELECT * FROM expenses WHERE id = ?', [id]) as Expense | null;
     if (!existing) {
       return res.status(404).json({ error: 'Expense not found' });
     }
@@ -96,9 +96,9 @@ function handlePut(req: VercelRequest, res: VercelResponse, id: number, db: Data
 
     params.push(id);
     const query = `UPDATE expenses SET ${updates.join(', ')} WHERE id = ?`;
-    db.prepare(query).run(...params);
+    await db.execute(query, params);
 
-    const expense = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as Expense;
+    const expense = await db.get('SELECT * FROM expenses WHERE id = ?', [id]) as Expense;
     return res.status(200).json(expense);
   } catch (error) {
     console.error('Error in handlePut:', error);
@@ -109,14 +109,14 @@ function handlePut(req: VercelRequest, res: VercelResponse, id: number, db: Data
   }
 }
 
-function handleDelete(req: VercelRequest, res: VercelResponse, id: number, db: Database.Database) {
+async function handleDelete(req: VercelRequest, res: VercelResponse, id: number, db: any) {
   try {
-    const existing = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as Expense | undefined;
+    const existing = await db.get('SELECT * FROM expenses WHERE id = ?', [id]) as Expense | null;
     if (!existing) {
       return res.status(404).json({ error: 'Expense not found' });
     }
 
-    db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
+    await db.execute('DELETE FROM expenses WHERE id = ?', [id]);
     return res.status(204).end();
   } catch (error) {
     console.error('Error in handleDelete:', error);
@@ -126,4 +126,3 @@ function handleDelete(req: VercelRequest, res: VercelResponse, id: number, db: D
     });
   }
 }
-

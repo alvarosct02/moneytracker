@@ -55,8 +55,8 @@ function App() {
   const handleCreate = async (expenseData: Omit<Expense, 'id'>) => {
     try {
       await api.createExpense(expenseData);
-      await loadExpenses();
-      await loadSummary();
+      // Reload both expenses and summary to ensure UI is updated
+      await Promise.all([loadExpenses(), loadSummary()]);
       setShowForm(false);
     } catch (error) {
       console.error('Error creating expense:', error);
