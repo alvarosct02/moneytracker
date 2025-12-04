@@ -1,3 +1,30 @@
+// Load environment variables from .env.local in development
+import { config } from 'dotenv';
+import { existsSync } from 'fs';
+import { join } from 'path';
+
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  try {
+    // Try to load .env.local from project root
+    const envPath = join(process.cwd(), '..', '.env.local');
+    if (existsSync(envPath)) {
+      config({ path: envPath });
+      console.log('✅ Loaded .env.local from project root');
+    } else {
+      // Try from api directory
+      const envPathApi = join(process.cwd(), '.env.local');
+      if (existsSync(envPathApi)) {
+        config({ path: envPathApi });
+        console.log('✅ Loaded .env.local from api directory');
+      } else {
+        console.log('ℹ️  No .env.local found, using environment variables or SQLite fallback');
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not load .env.local:', error);
+  }
+}
+
 import express from 'express';
 import cors from 'cors';
 import expensesHandler from '../expenses';
