@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import db from './src/db/database';
-import { Expense } from './src/types';
+import type Database from 'better-sqlite3';
+import { Expense } from './types';
 
 export default async function handler(
   req: VercelRequest,
@@ -16,21 +16,30 @@ export default async function handler(
   }
 
   try {
+    // Import database lazily
+    const db = (await import('./db/database')).default;
+    
     switch (req.method) {
       case 'GET':
-        return handleGet(req, res);
+        return handleGet(req, res, db);
       case 'POST':
-        return handlePost(req, res);
+        return handlePost(req, res, db);
       default:
         return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error in handler:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error('Error details:', { errorMessage, errorStack });
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      details: errorMessage
+    });
   }
 }
 
-function handleGet(req: VercelRequest, res: VercelResponse) {
+function handleGet(req: VercelRequest, res: VercelResponse, db: Database.Database) {
   try {
     const { category, subcategory, owner } = req.query;
 
@@ -63,7 +72,7 @@ function handleGet(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-function handlePost(req: VercelRequest, res: VercelResponse) {
+function handlePost(req: VercelRequest, res: VercelResponse, db: Database.Database) {
   try {
     const { amount, currency, category, subcategory, owner, description, date } = req.body;
 

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import db from '../db/database';
+import type Database from 'better-sqlite3';
 import { Expense } from '../types';
 
 export default async function handler(
@@ -23,23 +23,34 @@ export default async function handler(
   }
 
   try {
+    // Import database lazily
+    const db = (await import('../db/database')).default;
+    
     switch (req.method) {
       case 'PUT':
-        return handlePut(req, res, expenseId);
+        return handlePut(req, res, expenseId, db);
       case 'DELETE':
-        return handleDelete(req, res, expenseId);
+        return handleDelete(req, res, expenseId, db);
       default:
         return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error in handler:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      details: errorMessage
+    });
   }
 }
 
-function handlePut(req: VercelRequest, res: VercelResponse, id: number) {
+function handlePut(req: VercelRequest, res: VercelResponse, id: number, db: Database.Database) {
   try {
-    const { amount, category, subcategory, owner, description, date } = req.body;
+    const { amount, currency, category, subcategory, owner, description, date } = req.body;
+
+    if (currency && currency !== 'PEN' && currency !== 'USD') {
+      return res.status(400).json({ error: 'Invalid currency. Must be PEN or USD' });
+    }
 
     // Check if expense exists
     const existing = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as Expense | undefined;
@@ -53,6 +64,10 @@ function handlePut(req: VercelRequest, res: VercelResponse, id: number) {
     if (amount !== undefined) {
       updates.push('amount = ?');
       params.push(amount);
+    }
+    if (currency !== undefined) {
+      updates.push('currency = ?');
+      params.push(currency);
     }
     if (category !== undefined) {
       updates.push('category = ?');
@@ -94,7 +109,7 @@ function handlePut(req: VercelRequest, res: VercelResponse, id: number) {
   }
 }
 
-function handleDelete(req: VercelRequest, res: VercelResponse, id: number) {
+function handleDelete(req: VercelRequest, res: VercelResponse, id: number, db: Database.Database) {
   try {
     const existing = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id) as Expense | undefined;
     if (!existing) {

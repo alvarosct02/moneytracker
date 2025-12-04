@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import expensesHandler from '../expenses';
 import summaryHandler from '../summary';
-import expensesIdHandler from '../src/handlers/expensesId';
+import expensesIdHandler from '../handlers/expensesId';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const app = express();

@@ -16,3 +16,5 @@ api/dist/
 api/test-server.sh
 api/api/
 
+.vercel
+.env*.local

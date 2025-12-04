@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import db from './src/db/database';
-import { ExpenseSummary } from './src/types';
+import type Database from 'better-sqlite3';
+import { ExpenseSummary } from './types';
 
 export default async function handler(
   req: VercelRequest,
@@ -20,6 +20,9 @@ export default async function handler(
   }
 
   try {
+    // Import database lazily
+    const db = (await import('./db/database')).default;
+    
     // Get current month start and end
     const now = new Date();
     const year = now.getFullYear();
@@ -75,8 +78,12 @@ export default async function handler(
 
     return res.status(200).json(summary);
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error in summary handler:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      details: errorMessage
+    });
   }
 }
 
