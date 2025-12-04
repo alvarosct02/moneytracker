@@ -12,19 +12,32 @@ El código ahora soporta PostgreSQL automáticamente. Si detecta la variable de 
 
 ### 1. Crear Base de Datos PostgreSQL en Vercel
 
+**Recomendación: Usar Neon (Serverless Postgres)**
+
 1. Ve a tu proyecto en Vercel: https://vercel.com/dashboard
 2. Ve a la pestaña **Storage**
 3. Haz clic en **Create Database**
-4. Selecciona **Postgres**
-5. Elige un plan (el plan gratuito "Hobby" es suficiente para empezar)
-6. Selecciona una región cercana a ti
-7. Haz clic en **Create**
+4. En la sección **Marketplace Database Providers**, busca **Neon** (tiene un logo verde con "N")
+5. Haz clic en **Create** en la tarjeta de Neon
+6. Sigue el proceso de configuración:
+   - Elige un nombre para tu base de datos
+   - Selecciona una región cercana a ti
+   - El plan gratuito es suficiente para empezar
+7. Neon se conectará automáticamente a tu proyecto y configurará la variable `POSTGRES_URL`
 
-### 2. Conectar la Base de Datos al Proyecto
+**Alternativas:**
+- **Supabase**: También es una buena opción con plan gratuito generoso
+- **Prisma Postgres**: Si prefieres una solución más integrada con Prisma
 
-1. Una vez creada la base de datos, haz clic en **.env.local** o ve a **Settings** > **Environment Variables**
-2. Vercel automáticamente creará la variable `POSTGRES_URL` con la cadena de conexión
-3. Si no aparece automáticamente, copia la **Connection String** de la base de datos y créala manualmente como `POSTGRES_URL`
+### 2. Verificar Conexión Automática
+
+1. Una vez creada la base de datos con Neon, Vercel automáticamente:
+   - Conectará la base de datos a tu proyecto
+   - Creará la variable de entorno `POSTGRES_URL` con la cadena de conexión
+   - Redesplegará tu proyecto automáticamente
+
+2. Puedes verificar las variables de entorno en **Settings** > **Environment Variables**
+3. Deberías ver `POSTGRES_URL` configurada automáticamente
 
 ### 3. Verificar Variables de Entorno
 
