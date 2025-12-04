@@ -24,7 +24,7 @@ export default async function handler(
 
   try {
     // Import database lazily
-    const db = (await import('../db/database')).default;
+    const db = (await import('../db/database.js')).default;
     
     switch (req.method) {
       case 'PUT':
